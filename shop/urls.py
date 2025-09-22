@@ -10,4 +10,7 @@ urlpatterns = [
     path('category/<int:pk>/', views.CategoryDetail.as_view(), name='category-detail'),
     path('product/', views.ProductList.as_view(), name='product-list'),
     path('product/<int:pk>', views.ProductDetail.as_view(), name='product-detail'),
+    path('order/', views.OrderList.as_view(), name='order-list'),
+    path('order/<int:pk>', views.OrderDetail.as_view(), name='order-detail'),
+    path('order-item/', views.OrderItemList.as_view(), name='order-item-list'),
 ] + debug_toolbar_urls()

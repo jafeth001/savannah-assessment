@@ -94,8 +94,6 @@ class OrderItem(models.Model):
         Product, on_delete=models.PROTECT, related_name='order_items')
     quantity = models.PositiveIntegerField(
         validators=[MinValueValidator(1)])
-    price = models.DecimalField(
-        max_digits=10, decimal_places=2, validators=[MinValueValidator(0)])
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -107,3 +105,7 @@ class OrderItem(models.Model):
     @property
     def total_price(self):
         return self.quantity * self.price
+
+    @property
+    def price(self):
+        return self.product.price

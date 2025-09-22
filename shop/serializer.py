@@ -23,7 +23,10 @@ class ProductSerializer(serializers.ModelSerializer):
 
 class OrderItemSerializer(serializers.ModelSerializer):
     total_price = serializers.DecimalField(
-        source="total_price", max_digits=10, decimal_places=2, read_only=True
+         max_digits=10, decimal_places=2, read_only=True
+    )
+    price = serializers.DecimalField(
+        max_digits=10, decimal_places=2, read_only=True
     )
 
     class Meta:
@@ -34,7 +37,7 @@ class OrderItemSerializer(serializers.ModelSerializer):
 class OrderSerializer(serializers.ModelSerializer):
     items = OrderItemSerializer(many=True, read_only=True)
     total_price = serializers.DecimalField(
-        source="total_price", max_digits=10, decimal_places=2, read_only=True
+        max_digits=10, decimal_places=2, read_only=True
     )
 
     class Meta:

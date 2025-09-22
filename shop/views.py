@@ -2,8 +2,9 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status
 
-from shop.models import Customer, Category, Product
-from shop.serializer import CustomerSerializer, CategorySerializer, ProductSerializer
+from shop.models import Customer, Category, Product, Order, OrderItem
+from shop.serializer import CustomerSerializer, CategorySerializer, ProductSerializer, OrderSerializer, \
+    OrderItemSerializer
 
 
 class CustomerList(APIView):
@@ -128,7 +129,7 @@ class ProductList(APIView):
             category = request.data.get('category')
             if not category:
                 raise ValueError('Category cannot be empty')
-            if not Category.objects.filter(pk=category):
+            if not Category.objects.filter(pk=category).exists():
                 raise ValueError('Category does not exist')
             serializer = ProductSerializer(data=request.data)
             serializer.is_valid(raise_exception=True)
@@ -139,14 +140,9 @@ class ProductList(APIView):
 
     @staticmethod
     def get(request):
-        try:
-            products = Product.objects.select_related('category').all()
-            if not products:
-                raise ValueError('Products cannot be empty')
-            serializer = ProductSerializer(products, many=True)
-            return Response(serializer.data)
-        except Exception as e:
-            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        products = Product.objects.select_related('category').all()
+        serializer = ProductSerializer(products, many=True)
+        return Response(serializer.data)
 
 
 class ProductDetail(APIView):
@@ -154,33 +150,128 @@ class ProductDetail(APIView):
     def get(request, pk):
         try:
             product = Product.objects.select_related('category').get(pk=pk)
-            if not product:
-                raise ValueError('Product does not exist')
             serializer = ProductSerializer(product)
             return Response(serializer.data)
+        except Product.DoesNotExist:
+            return Response({'error': 'Product does not exist'}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
     @staticmethod
-    def update(request, pk):
+    def put(request, pk):
         try:
-            category = request.data.get('category')
-            if not Category.objects.get(pk=category):
-                raise ValueError('Category does not exist')
-            serializer = ProductSerializer(Product, data=request.data)
+            category_id = request.data.get('category')
+            if category_id and not Category.objects.filter(pk=category_id).exists():
+                return Response({'error': 'Category does not exist'}, status=status.HTTP_400_BAD_REQUEST)
+
+            product = Product.objects.get(pk=pk)
+            serializer = ProductSerializer(product, data=request.data)
             serializer.is_valid(raise_exception=True)
             serializer.save()
             return Response(serializer.data)
+        except Product.DoesNotExist:
+            return Response({'error': 'Product does not exist'}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
     @staticmethod
-    def  delete(pk):
+    def delete(request, pk):
         try:
             product = Product.objects.get(pk=pk)
-            if not product:
-                raise ValueError('Product does not exist')
             product.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
+        except Product.DoesNotExist:
+            return Response({'error': 'Product does not exist'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class OrderList(APIView):
+    @staticmethod
+    def post(request):
+        try:
+            customer_id = request.data.get('customer')
+            if not customer_id:
+                return Response({'error': 'Customer ID is required'}, status=status.HTTP_400_BAD_REQUEST)
+
+            if not Customer.objects.filter(pk=customer_id).exists():
+                return Response({'error': 'Customer does not exist'}, status=status.HTTP_400_BAD_REQUEST)
+
+            serializer = OrderSerializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+    @staticmethod
+    def get(request):
+        orders = Order.objects.select_related('customer').all()
+        serializer = OrderSerializer(orders, many=True)
+        return Response(serializer.data)
+
+
+class OrderDetail(APIView):
+    @staticmethod
+    def get(request, pk):
+        try:
+            order = Order.objects.select_related('customer').get(pk=pk)
+            serializer = OrderSerializer(order)
+            return Response(serializer.data)
+        except Order.DoesNotExist:
+            return Response({'error': 'Order does not exist'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+    @staticmethod
+    def put(request, pk):
+        try:
+            order = Order.objects.get(pk=pk)
+            serializer = OrderSerializer(order, data=request.data)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data)
+        except Order.DoesNotExist:
+            return Response({'error': 'Order does not exist'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+    @staticmethod
+    def delete(request, pk):
+        try:
+            order = Order.objects.get(pk=pk)
+            order.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except Order.DoesNotExist:
+            return Response({'error': 'Order does not exist'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class OrderItemList(APIView):
+    @staticmethod
+    def post(request):
+        try:
+            serializer = OrderItemSerializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+    @staticmethod
+    def get(request):
+        order_items = OrderItem.objects.all()
+        serializer = OrderItemSerializer(order_items, many=True)
+        return Response(serializer.data)
+
+    @staticmethod
+    def delete(request, pk):
+        try:
+            order_item = OrderItem.objects.get(pk=pk)
+            order_item.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except OrderItem.DoesNotExist:
+            return Response({'error': 'Order item does not exist'}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
