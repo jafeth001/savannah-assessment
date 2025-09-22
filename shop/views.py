@@ -227,14 +227,14 @@ class OrderDetail(APIView):
     def put(request, pk):
         try:
             order = Order.objects.get(pk=pk)
-            serializer = OrderSerializer(order, data=request.data)
-            serializer.is_valid(raise_exception=True)
-            serializer.save()
-            return Response(serializer.data)
         except Order.DoesNotExist:
             return Response({'error': 'Order does not exist'}, status=status.HTTP_404_NOT_FOUND)
-        except Exception as e:
-            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+        serializer = OrderSerializer(order, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data)
+
 
     @staticmethod
     def delete(request, pk):
