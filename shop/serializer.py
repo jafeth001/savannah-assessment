@@ -21,13 +21,23 @@ class ProductSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'description', 'price', 'category']
 
 
-class OrderSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Order
-        fields = ['id', 'customer', 'status', 'total_price']
-
-
 class OrderItemSerializer(serializers.ModelSerializer):
+    total_price = serializers.DecimalField(
+        source="total_price", max_digits=10, decimal_places=2, read_only=True
+    )
+
     class Meta:
         model = OrderItem
-        fields = ['id', 'order', 'product', 'price', 'quantity']
+        fields = ['id', 'order', 'product', 'price', 'quantity', 'total_price']
+
+
+class OrderSerializer(serializers.ModelSerializer):
+    items = OrderItemSerializer(many=True, read_only=True)
+    total_price = serializers.DecimalField(
+        source="total_price", max_digits=10, decimal_places=2, read_only=True
+    )
+
+    class Meta:
+        model = Order
+        fields = ['id', 'customer', 'status', 'total_price', 'items']
+
