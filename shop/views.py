@@ -1,7 +1,10 @@
+from django.core.mail import send_mail
+from django.template.loader import render_to_string
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status
 
+from savannah import settings
 from shop.models import Customer, Category, Product, Order, OrderItem
 from shop.serializer import CustomerSerializer, CategorySerializer, ProductSerializer, OrderSerializer, \
     OrderItemSerializer
@@ -134,7 +137,7 @@ class ProductList(APIView):
             serializer = ProductSerializer(data=request.data)
             serializer.is_valid(raise_exception=True)
             serializer.save()
-            return Response(serializer.data,status=status.HTTP_201_CREATED)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -235,7 +238,6 @@ class OrderDetail(APIView):
         serializer.save()
         return Response(serializer.data)
 
-
     @staticmethod
     def delete(request, pk):
         try:
@@ -249,13 +251,50 @@ class OrderDetail(APIView):
 
 
 class OrderItemList(APIView):
+
     @staticmethod
     def post(request):
         try:
             serializer = OrderItemSerializer(data=request.data)
             serializer.is_valid(raise_exception=True)
-            serializer.save()
+            order_item = serializer.save()
+
+            # Fetch related order + customer
+            order = order_item.order
+            customer = order.customer
+
+            # Send styled HTML email to admin
+            subject = f"New Order Item Added to Order #{order.id}"
+
+            # Prepare context for email template
+            context = {
+                "order": order,
+                "order_item": order_item,
+                "customer": customer.email
+            }
+
+            try:
+                html_message = render_to_string("emails/order_item_notification.html", context)
+            except Exception:
+                # Fallback if template doesn't exist
+                html_message = None
+
+            plain_message = (
+                f"A new item ({order_item.product.name}) "
+                f"was added to Order #{order.id} by {customer.email}"
+            )
+
+            send_mail(
+                subject,
+                plain_message,
+                settings.DEFAULT_FROM_EMAIL,
+                [settings.ADMIN_EMAIL],
+                html_message=html_message,
+                fail_silently=False,
+            )
+
             return Response(serializer.data, status=status.HTTP_201_CREATED)
+
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
