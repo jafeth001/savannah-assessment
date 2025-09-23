@@ -1,7 +1,7 @@
 """
 URL configuration for savannah project.
 
-The `urlpatterns` list routes URLs to views. For more information please see:
+The [urlpatterns](file://C:\Users\jafeth\Desktop\savannah-assessment\savannah\urls.py#L20-L23) list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/5.2/topics/http/urls/
 Examples:
 Function views
@@ -20,5 +20,6 @@ from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('shop/', include('shop.urls'))
+    path('shop/', include('shop.urls')),
+    path('oidc/', include('mozilla_django_oidc.urls'))
 ]

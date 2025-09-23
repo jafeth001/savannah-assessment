@@ -37,7 +37,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'shop',
     'debug_toolbar',
-    'rest_framework'
+    'rest_framework',
+    'mozilla_django_oidc',
 ]
 
 MIDDLEWARE = [
@@ -47,6 +48,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'mozilla_django_oidc.middleware.SessionRefresh',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -131,6 +133,27 @@ EMAIL_HOST_PASSWORD = " "
 DEFAULT_FROM_EMAIL = "jafethadet@gmail.com"
 ADMIN_EMAIL = "admin@myshop.com"
 
+# OpenID Connect settings
+AUTHENTICATION_BACKENDS = (
+    'mozilla_django_oidc.auth.OIDCAuthenticationBackend',
+    'django.contrib.auth.backends.ModelBackend',
+)
+
+LOGIN_URL = 'oidc_authentication_init'
+LOGIN_REDIRECT_URL = '/shop/customer/'
+LOGOUT_REDIRECT_URL = '/'
+
+# Auth0 specific settings
+OIDC_RP_CLIENT_ID = 'RU0EzbYMg2GgxIE0kPR7AVuA9dNg4tix'
+OIDC_RP_CLIENT_SECRET = '2u9z1ClZUdbNFdbDZxvZQXr47YqjBrwgVc1yu0W9qv1a72JEX08072xZr29GVpCA'
+OIDC_OP_AUTHORIZATION_ENDPOINT = 'https://savannah-shop.us.auth0.com/authorize'
+OIDC_OP_TOKEN_ENDPOINT = 'https://savannah-shop.us.auth0.com/oauth/token'
+OIDC_OP_USER_ENDPOINT = 'https://savannah-shop.us.auth0.com/userinfo'
+
+# Optional settings
+OIDC_VERIFY_SSL = True
+OIDC_USERNAME_ALGO = 'shop.oidc.generate_username'
+OIDC_CREATE_USER = True
 
 
 AFRICASTALKING_USERNAME = "savannah-shop"
