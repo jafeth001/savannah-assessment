@@ -1,6 +1,8 @@
 import africastalking
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
+from rest_framework.authentication import SessionAuthentication, BasicAuthentication
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status
@@ -12,6 +14,9 @@ from shop.serializer import CustomerSerializer, CategorySerializer, ProductSeria
 
 
 class CustomerList(APIView):
+    authentication_classes = [SessionAuthentication, BasicAuthentication]
+    permission_classes = [IsAuthenticated]
+
     @staticmethod
     def post(request):
         email = request.data.get('email')
@@ -38,6 +43,8 @@ class CustomerList(APIView):
 
 
 class CustomerDetail(APIView):
+    authentication_classes = [SessionAuthentication, BasicAuthentication]
+    permission_classes = [IsAuthenticated]
     @staticmethod
     def get(request, pk):
         try:
@@ -302,7 +309,6 @@ class OrderItemList(APIView):
             message = f"Hello {customer.first_name}, your order #{order.id} has a new item: {order_item.product.name}"
             response = sms.send(message, [customer.phone])
             print("SMS response:", response)
-
 
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
