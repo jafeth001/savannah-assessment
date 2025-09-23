@@ -1,3 +1,4 @@
+import africastalking
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from rest_framework.response import Response
@@ -292,6 +293,16 @@ class OrderItemList(APIView):
                 html_message=html_message,
                 fail_silently=False,
             )
+
+            africastalking.initialize(
+                username=settings.AFRICASTALKING_USERNAME,
+                api_key=settings.AFRICASTALKING_API_KEY
+            )
+            sms = africastalking.SMS
+            message = f"Hello {customer.first_name}, your order #{order.id} has a new item: {order_item.product.name}"
+            response = sms.send(message, [customer.phone])
+            print("SMS response:", response)
+
 
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 

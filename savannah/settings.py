@@ -130,3 +130,8 @@ EMAIL_HOST_USER = " "
 EMAIL_HOST_PASSWORD = " "
 DEFAULT_FROM_EMAIL = "jafethadet@gmail.com"
 ADMIN_EMAIL = "admin@myshop.com"
+
+
+
+AFRICASTALKING_USERNAME = "savannah-shop"
+AFRICASTALKING_API_KEY = "atsk_2329d7a7fea678d0cbec3ac6236cc56dd6b3d7073f67dd443c0073241282f5ad551c43f8"
