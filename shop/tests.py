@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 from django.test import TestCase
 from django.urls import reverse
 from rest_framework import status
@@ -87,12 +88,14 @@ class CategoryAPITest(TestCase):
 class CustomerAPITest(TestCase):
     def setUp(self):
         self.client = APIClient()
+        self.user = User.objects.create_user(username='testuser', password='testpass')
         self.customer = Customer.objects.create(
             first_name="John",
             last_name="Doe",
             email="john@example.com",
             phone="123456789"
         )
+        self.client.force_authenticate(user=self.user)
         self.list_url = reverse('customer-list')
         self.detail_url = reverse('customer-detail', kwargs={'pk': self.customer.id})
 
