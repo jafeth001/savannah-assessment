@@ -66,6 +66,9 @@ Create a `.env` file based on `.env.example` and configure the following variabl
 ## API Endpoints
 
 ### Customer Management
+
+ http://localhost:8000/oidc/authenticate/  - authentication
+
 - `POST /shop/customer/` - Create a new customer
 - `GET /shop/customer/` - List all customers
 - `GET /shop/customer/{id}/` - Get customer details
@@ -92,6 +95,11 @@ Create a `.env` file based on `.env.example` and configure the following variabl
 - `GET /shop/order/{id}/` - Get order details
 - `PUT /shop/order/{id}/` - Update order information
 - `DELETE /shop/order/{id}/` - Delete an order
+
+### Order Items Management
+- `POST /shop/order-item/` - Create a new order item
+- `GET /shop/order-item/` - List all order items
+- `DELETE /shop/order-item/{id}/` - Delete an order item
 
 ## Authentication
 
