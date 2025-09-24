@@ -37,13 +37,19 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'shop',
-    'debug_toolbar',
     'rest_framework',
     'mozilla_django_oidc',
 ]
 
+# Conditionally add debug_toolbar only when DEBUG is True and package is available
+if DEBUG:
+    try:
+        import debug_toolbar
+        INSTALLED_APPS += ['debug_toolbar']
+    except ImportError:
+        pass
+
 MIDDLEWARE = [
-    "debug_toolbar.middleware.DebugToolbarMiddleware",
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -54,6 +60,14 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+# Conditionally add debug_toolbar middleware
+if DEBUG:
+    try:
+        import debug_toolbar
+        MIDDLEWARE = ['debug_toolbar.middleware.DebugToolbarMiddleware'] + MIDDLEWARE
+    except ImportError:
+        pass
 
 ROOT_URLCONF = 'savannah.urls'
 
