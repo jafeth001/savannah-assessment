@@ -57,7 +57,6 @@ jobs:
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
 
-    # Only run if Docker credentials are available
     steps:
     - uses: actions/checkout@v3
 
@@ -86,7 +85,7 @@ jobs:
       uses: docker/build-push-action@v4
       with:
         context: .
-        push: true
+        push: ${{ secrets.DOCKERHUB_USERNAME != '' && secrets.DOCKERHUB_TOKEN != '' }}
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
 
