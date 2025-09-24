@@ -1,0 +1,72 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: savannah-app
+  labels:
+    app: savannah
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: savannah
+  template:
+    metadata:
+      labels:
+        app: savannah
+    spec:
+      containers:
+      - name: savannah-app
+        image: your-dockerhub-username/savannah-app:latest
+        ports:
+        - containerPort: 8000
+        envFrom:
+        - configMapRef:
+            name: savannah-config
+        - secretRef:
+            name: savannah-secrets
+        env:
+        - name: DB_HOST
+          value: "postgres-service"
+        readinessProbe:
+          httpGet:
+            path: /shop/product/
+            port: 8000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /shop/product/
+            port: 8000
+          initialDelaySeconds: 60
+          periodSeconds: 30
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres-db
+  labels:
+    app: postgres
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+      - name: postgres
+        image: postgres:13
+        ports:
+        - containerPort: 5432
+        envFrom:
+        - secretRef:
+            name: savannah-secrets
+        volumeMounts:
+        - name: postgres-storage
+          mountPath: /var/lib/postgresql/data
+      volumes:
+      - name: postgres-storage
+        emptyDir: {}
