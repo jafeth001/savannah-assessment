@@ -15,16 +15,11 @@ RUN apt-get update \
         build-essential \
     && rm -rf /var/lib/apt/lists/*
 
-# Install pipenv
-RUN pip install --no-cache-dir pipenv
+# Copy requirements.txt
+COPY requirements.txt .
 
-# Copy Pipfile and Pipfile.lock
-COPY Pipfile Pipfile.lock ./
-
-# Install project dependencies
-RUN pipenv lock --pre -r > requirements.txt && \
-    pip install --no-cache-dir -r requirements.txt && \
-    rm -f requirements.txt
+# Install project dependencies directly with pip
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy project
 COPY . .
