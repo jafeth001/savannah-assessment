@@ -55,6 +55,7 @@ jobs:
   build-and-push:
     needs: test
     runs-on: ubuntu-latest
+    # 👇 Only check branch here (no secrets at job level)
     if: github.ref == 'refs/heads/main'
 
     steps:
@@ -93,12 +94,14 @@ jobs:
   deploy:
     needs: build-and-push
     runs-on: ubuntu-latest
+    # 👇 Again, no secrets at job level
     if: github.ref == 'refs/heads/main'
 
     steps:
       - uses: actions/checkout@v3
 
       - name: Deploy instructions
+        if: ${{ secrets.DOCKERHUB_USERNAME != '' && secrets.DOCKERHUB_TOKEN != '' }}
         run: |
           echo "✅ Docker image pushed to Docker Hub: jafethadet/savannah-app"
           echo "To deploy to Kubernetes, run the following commands:"
