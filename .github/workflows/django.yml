@@ -55,8 +55,7 @@ jobs:
   build-and-push:
     needs: test
     runs-on: ubuntu-latest
-    # 👇 Only check branch here (no secrets at job level)
-    if: github.ref == 'refs/heads/main'
+    if: ${{ github.ref == 'refs/heads/main' }}
 
     steps:
       - uses: actions/checkout@v3
@@ -94,8 +93,7 @@ jobs:
   deploy:
     needs: build-and-push
     runs-on: ubuntu-latest
-    # 👇 Again, no secrets at job level
-    if: github.ref == 'refs/heads/main'
+    if: ${{ github.ref == 'refs/heads/main' }}
 
     steps:
       - uses: actions/checkout@v3
