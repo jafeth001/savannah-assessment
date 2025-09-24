@@ -5,11 +5,17 @@ name = "pypi"
 
 [packages]
 django = "*"
-django-templated-mail = "*"
-mozilla-django-oidc = "*"
 djangorestframework = "*"
+psycopg2-binary = "*"
+mozilla-django-oidc = "*"
+africastalking = "*"
+django-debug-toolbar = "*"
+gunicorn = "*"
+whitenoise = "*"
 
 [dev-packages]
+pytest = "*"
+flake8 = "*"
 
 [requires]
-python_version = "3.13"
+python_version = "3.11"
