@@ -1,9 +1,9 @@
 # Use an official Python runtime as the base image
-FROM python:3.13-slim
+FROM python:3.11-slim
 
-# Set environment variables
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
+# Set environment variables (using proper format to avoid warnings)
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
 
 # Set work directory
 WORKDIR /app
@@ -22,7 +22,9 @@ RUN pip install --no-cache-dir pipenv
 COPY Pipfile Pipfile.lock ./
 
 # Install project dependencies
-RUN pipenv install --system --deploy
+RUN pipenv lock --pre -r > requirements.txt && \
+    pip install --no-cache-dir -r requirements.txt && \
+    rm -f requirements.txt
 
 # Copy project
 COPY . .
